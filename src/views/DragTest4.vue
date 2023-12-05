@@ -181,7 +181,7 @@ export default {
     },
     showGeolocationPrompt() {
       // Show the geolocation prompt modal
-      $('#geolocationPromptModal').modal('show');
+      ('#geolocationPromptModal').modal('show');
     },
   },
   mounted() {
