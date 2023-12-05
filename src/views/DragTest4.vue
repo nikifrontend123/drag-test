@@ -181,7 +181,9 @@ export default {
     },
     showGeolocationPrompt() {
       // Show the geolocation prompt modal
-      ('#geolocationPromptModal').modal('show');
+      const modalElement = document.getElementById('geolocationPromptModal');
+      const modal = new bootstrap.Modal(modalElement);
+      modal.show();
     },
   },
   mounted() {
