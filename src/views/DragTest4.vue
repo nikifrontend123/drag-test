@@ -1,10 +1,6 @@
 <template>
   <CatelogFilter>Market</CatelogFilter>
   <div class="container my-5 py-3">
-    <!-- ... your existing content ... -->
-    <h5 v-if="userLocation">User Coordinates: {{ userLocation.latitude }}, {{ userLocation.longitude }}</h5>
-  </div>
-  <div class="container my-5 py-3">
 
     <div class="row g-1">
       <div class="col-4" v-for="item in firstList" :key="item.sid">
@@ -48,6 +44,11 @@
     <!-- -------------------OFFCANVAS------------------------------ -->
 
   </div>
+  <GeoPrompt @geolocationAllowed="getUserLocation" />
+  <div class="container my-5 py-3">
+    <!-- ... your existing content ... -->
+    <h5 v-if="userLocation">User Coordinates: {{ userLocation.latitude }}, {{ userLocation.longitude }}</h5>
+  </div>
   <!-- --------------Bottom Nav----------------------------- -->
   <div class="d-flex justify-content-evenly p-2 position-fixed bottom-0 w-100 bg-light" style="z-index: 1;">
     <button class="btn btn-warning rounded-2 m-0">Selected {{ selectedItems.length }}</button>
@@ -61,6 +62,7 @@
   
 <script>
 import CatelogFilter from '@/components/CatelogFilter.vue';
+import GeoPrompt from '@/components/GeoPrompt.vue';
 
 export default {
   data() {
@@ -181,7 +183,7 @@ export default {
   mounted() {
     this.getUserLocation();
   },
-  components: { CatelogFilter }
+  components: { CatelogFilter, GeoPrompt }
 };
 </script>
   
