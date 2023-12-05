@@ -1,5 +1,5 @@
 <template>
-    <div class="modal fade" id="geolocationPromptModal" tabindex="-1" aria-labelledby="geolocationPromptModalLabel"
+    <div class="modal" id="geolocationPromptModal" tabindex="-1" aria-labelledby="geolocationPromptModalLabel"
       aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -27,6 +27,9 @@
         // You may call the function to get the user's location here
         // For example: this.$emit('geolocationAllowed');
         this.$emit('geolocationAllowed');
+        // Close the modal using native Bootstrap method
+        const modal = new bootstrap.Modal(document.getElementById('geolocationPromptModal'));
+        modal.hide();
       }
     }
   };
