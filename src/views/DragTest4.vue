@@ -179,9 +179,14 @@ export default {
         console.error('Geolocation is not supported by this browser.');
       }
     },
+    showGeolocationPrompt() {
+      // Show the geolocation prompt modal
+      $('#geolocationPromptModal').modal('show');
+    },
   },
   mounted() {
     this.getUserLocation();
+    this.showGeolocationPrompt();
   },
   components: { CatelogFilter, GeoPrompt }
 };
