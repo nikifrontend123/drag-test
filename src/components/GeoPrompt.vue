@@ -8,7 +8,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p>We need your permission to access your location. Please allow geolocation access to use this feature.
+                    <p>We need your permission to access your location.
                     </p>
                 </div>
                 <div class="modal-footer">
