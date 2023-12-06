@@ -13,7 +13,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" @click="allowGeolocation">Allow</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="closeGeoPrompt">Deny</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                        @click="closeGeoPrompt">Deny</button>
                 </div>
             </div>
         </div>
@@ -22,7 +23,18 @@
   
 <script>
 export default {
+    data() {
+        return {
+           
+            showModalVariable: false,
+        };
+    },
     methods: {
+        showModal() {
+            // Your logic to show the modal
+            // For example, you might toggle a data property like this:
+            this.showModalVariable = true;
+        },
         allowGeolocation() {
             this.$emit('geolocationAllowed');
             this.closeGeoPrompt();

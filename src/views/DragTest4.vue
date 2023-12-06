@@ -1,7 +1,7 @@
 <template>
-  <CatelogFilter>Market</CatelogFilter>
+  <CatelogFilter>Markets</CatelogFilter>
   <div class="container my-5 py-3">
-    <GeoPrompt @geolocationAllowed="getUserLocation" @closeGeoPrompt="closeCustomGeoPrompt" />
+    <GeoPrompt ref="geoPrompt" @geolocationAllowed="getUserLocation" @closeGeoPrompt="closeCustomGeoPrompt" />
     <div class="row g-1">
       <div class="col-4" v-for="item in firstList" :key="item.sid">
         <div class="card mb-3" @click="toggleSelection(item)"
@@ -186,16 +186,20 @@ export default {
           },
           (error) => {
             console.error('Error getting user location:', error);
+            // If geolocation is not available or denied, show your custom modal
+            this.$refs.geoPrompt.showModal();
           }
         );
       } else {
         console.error('Geolocation is not supported by this browser.');
+        // If geolocation is not supported, show your custom modal
+        this.$refs.geoPrompt.showModal();
       }
     },
   },
   mounted() {
-    this.getUserLocation();
-    this.showGeolocationPrompt = true;
+    // this.getUserLocation();
+    this.$refs.geoPrompt.showModal();
   },
   components: { CatelogFilter, GeoPrompt }
 };
