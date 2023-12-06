@@ -1,7 +1,7 @@
 <template>
   <CatelogFilter>Markets</CatelogFilter>
   <div class="container my-5 py-3">
-    <GeoPrompt ref="geoPrompt" @geolocationAllowed="getUserLocation" @closeGeoPrompt="closeCustomGeoPrompt" />
+    <GeoPrompt ref="geoPrompt" @geolocationAllowed="getUserLocation" @closeGeoPrompt="closeCustomGeoPrompt"/>
     <div class="row g-1">
       <div class="col-4" v-for="item in firstList" :key="item.sid">
         <div class="card mb-3" @click="toggleSelection(item)"
@@ -163,13 +163,9 @@ export default {
     isItemInBox(item) {
       return this.droppedItems.some((droppedItem) => droppedItem.sid === item.sid);
     },
-    onGeolocationAllowed() {
-      // Perform actions when geolocation is allowed
-      console.log('Geolocation allowed!');
-      // You may want to fetch the user's location here
-      this.getUserLocation();
-      // Update the state to hide the prompt
-      this.showGeolocationPrompt = false;
+    onGeoPromptMounted() {
+      // This method is called when GeoPrompt is mounted
+      this.$refs.geoPrompt.showModal();
     },
     onCloseGeoPrompt() {
       // Perform actions when the geolocation prompt is closed
@@ -187,19 +183,26 @@ export default {
           (error) => {
             console.error('Error getting user location:', error);
             // If geolocation is not available or denied, show your custom modal
-            this.$refs.geoPrompt.showModal();
+            this.$nextTick(() => {
+              this.$refs.geoPrompt.showModal();
+            });
           }
         );
       } else {
         console.error('Geolocation is not supported by this browser.');
         // If geolocation is not supported, show your custom modal
-        this.$refs.geoPrompt.showModal();
+        this.$nextTick(() => {
+          this.$refs.geoPrompt.showModal();
+        });
       }
     },
   },
+  
   mounted() {
-    // this.getUserLocation();
-    this.$refs.geoPrompt.showModal();
+    this.getUserLocation();
+    // Listen for the "mounted" event of GeoPrompt
+    // this.$refs.geoPrompt.$once('hook:mounted', this.onGeoPromptMounted);
+    this.$nextTick(this.onGeoPromptMounted);
   },
   components: { CatelogFilter, GeoPrompt }
 };
