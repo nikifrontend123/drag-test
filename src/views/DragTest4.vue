@@ -1,7 +1,7 @@
 <template>
   <CatelogFilter>Market</CatelogFilter>
   <div class="container my-5 py-3">
-
+    <GeoPrompt @geolocationAllowed="getUserLocation" @closeGeoPrompt="closeCustomGeoPrompt" />
     <div class="row g-1">
       <div class="col-4" v-for="item in firstList" :key="item.sid">
         <div class="card mb-3" @click="toggleSelection(item)"
@@ -44,9 +44,7 @@
     <!-- -------------------OFFCANVAS------------------------------ -->
 
   </div>
-  <GeoPrompt @geolocationAllowed="getUserLocation" />
   <div class="container my-5 py-3">
-    <!-- ... your existing content ... -->
     <h5 v-if="userLocation">User Coordinates: {{ userLocation.latitude }}, {{ userLocation.longitude }}</h5>
   </div>
   <!-- --------------Bottom Nav----------------------------- -->
@@ -116,6 +114,7 @@ export default {
       ],
       selectedItems: [],
       userLocation: null,
+      showGeolocationPrompt: true,
     };
   },
   methods: {
@@ -164,6 +163,20 @@ export default {
     isItemInBox(item) {
       return this.droppedItems.some((droppedItem) => droppedItem.sid === item.sid);
     },
+    onGeolocationAllowed() {
+      // Perform actions when geolocation is allowed
+      console.log('Geolocation allowed!');
+      // You may want to fetch the user's location here
+      this.getUserLocation();
+      // Update the state to hide the prompt
+      this.showGeolocationPrompt = false;
+    },
+    onCloseGeoPrompt() {
+      // Perform actions when the geolocation prompt is closed
+      console.log('Geolocation prompt closed.');
+      // Update the state to hide the prompt
+      this.showGeolocationPrompt = false;
+    },
     getUserLocation() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -179,16 +192,10 @@ export default {
         console.error('Geolocation is not supported by this browser.');
       }
     },
-    showGeolocationPrompt() {
-      // Show the geolocation prompt modal
-      const modalElement = document.getElementById('geolocationPromptModal');
-      const modal = new bootstrap.Modal(modalElement);
-      modal.show();
-    },
   },
   mounted() {
     this.getUserLocation();
-    this.showGeolocationPrompt();
+    this.showGeolocationPrompt = true;
   },
   components: { CatelogFilter, GeoPrompt }
 };

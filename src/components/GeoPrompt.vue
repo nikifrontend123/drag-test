@@ -13,7 +13,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" @click="allowGeolocation">Allow</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Deny</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="closeGeoPrompt">Deny</button>
                 </div>
             </div>
         </div>
@@ -25,7 +25,11 @@ export default {
     methods: {
         allowGeolocation() {
             this.$emit('geolocationAllowed');
-        }
+            this.closeGeoPrompt();
+        },
+        closeGeoPrompt() {
+            this.$emit('closeGeoPrompt');
+        },
     }
 };
 </script>
