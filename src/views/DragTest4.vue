@@ -1,7 +1,7 @@
 <template>
   <CatelogFilter>Markets</CatelogFilter>
   <div class="container my-5 py-3">
-    <GeoPrompt ref="geoPrompt" @geolocationAllowed="getUserLocation" @closeGeoPrompt="closeCustomGeoPrompt"/>
+    <GeoPrompt ref="geoPrompt" @geolocationAllowed="getUserLocation" @closeGeoPrompt="closeCustomGeoPrompt" />
     <div class="row g-1">
       <div class="col-4" v-for="item in firstList" :key="item.sid">
         <div class="card mb-3" @click="toggleSelection(item)"
@@ -163,10 +163,7 @@ export default {
     isItemInBox(item) {
       return this.droppedItems.some((droppedItem) => droppedItem.sid === item.sid);
     },
-    onGeoPromptMounted() {
-      // This method is called when GeoPrompt is mounted
-      this.$refs.geoPrompt.showModal();
-    },
+
     onCloseGeoPrompt() {
       // Perform actions when the geolocation prompt is closed
       console.log('Geolocation prompt closed.');
@@ -178,26 +175,36 @@ export default {
         navigator.geolocation.getCurrentPosition(
           (position) => {
             const { latitude, longitude } = position.coords;
-            this.userLocation = { latitude, longitude };
+            this.location = { latitude, longitude };
+            this.showLocationPopup = false;
+            this.$emit('geolocationAllowed', this.location);
           },
           (error) => {
-            console.error('Error getting user location:', error);
-            // If geolocation is not available or denied, show your custom modal
-            this.$nextTick(() => {
-              this.$refs.geoPrompt.showModal();
-            });
+            // Handle location retrieval error
+            console.error(`Error getting location: ${error.message}`);
+            
+            // Check if the error is due to user denying geolocation
+            if (error.code === error.PERMISSION_DENIED) {
+              this.showLocationPopup = false;
+              this.$emit('geolocationDenied');
+            } else {
+              // Handle other location retrieval errors
+              this.showLocationPopup = false;
+            }
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0,
           }
         );
       } else {
-        console.error('Geolocation is not supported by this browser.');
-        // If geolocation is not supported, show your custom modal
-        this.$nextTick(() => {
-          this.$refs.geoPrompt.showModal();
-        });
+        console.error('Geolocation is not supported by your browser');
+        this.showLocationPopup = false;
       }
     },
   },
-  
+
   mounted() {
     this.getUserLocation();
     // Listen for the "mounted" event of GeoPrompt

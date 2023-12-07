@@ -1,48 +1,97 @@
 <template>
-    <div class="modal" id="geolocationPromptModal" tabindex="-1" aria-labelledby="geolocationPromptModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="geolocationPromptModalLabel">Geolocation Permission</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>We need your permission to access your location.
-                    </p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" @click="allowGeolocation">Allow</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
-                        @click="closeGeoPrompt">Deny</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</template>
+    <div>
+      <!-- Custom Location Permission Popup -->
+      <div v-if="showLocationPopup" class="location-popup">
+        <p>Would you like to share your location?</p>
+        <button @click="allowLocation">Allow</button>
+        <button @click="denyLocation">Deny</button>
+      </div>
   
-<script>
-export default {
+      <p v-if="location">Latitude: {{ location.latitude }}, Longitude: {{ location.longitude }}</p>
+    </div>
+  </template>
+  
+  <style>
+  .location-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    text-align: center;
+  }
+  </style>
+  
+  <script>
+  export default {
     data() {
-        return {
-           
-            showModalVariable: false,
-        };
+      return {
+        showLocationPopup: false,
+        location: null,
+        customPermissionAllowed: false,
+      };
+    },
+    mounted() {
+      this.checkLocationPermission();
     },
     methods: {
-        showModal() {
-            // Your logic to show the modal
-            // For example, you might toggle a data property like this:
-            this.showModalVariable = true;
-        },
-        allowGeolocation() {
-            this.$emit('geolocationAllowed');
-            this.closeGeoPrompt();
-        },
-        closeGeoPrompt() {
-            this.$emit('closeGeoPrompt');
-        },
-    }
-};
-</script>
+      allowLocation() {
+        this.customPermissionAllowed = true;
+        this.getLocation();
+      },
+      denyLocation() {
+        this.showLocationPopup = false;
+        this.$emit('closeGeoPrompt');
+      },
+      getLocation() {
+        if (this.customPermissionAllowed && 'geolocation' in navigator) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              // Handle successful location retrieval
+              this.location = {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+              };
+              this.showLocationPopup = false;
+              this.$emit('geolocationAllowed', this.location);
+            },
+            (error) => {
+              // Handle location retrieval error
+              console.error(`Error getting location: ${error.message}`);
+              this.showLocationPopup = false;
+            },
+            {
+              enableHighAccuracy: true,
+              timeout: 5000,
+              maximumAge: 0,
+            }
+          );
+        } else {
+          console.error('Geolocation is not supported by your browser');
+          this.showLocationPopup = false;
+        }
+      },
+      checkLocationPermission() {
+        if ('permissions' in navigator) {
+          navigator.permissions.query({ name: 'geolocation' }).then((permissionStatus) => {
+            if (permissionStatus.state === 'granted') {
+              // Location permission is already granted
+              this.getLocation();
+            } else {
+              // Location permission is not granted, show custom prompt
+              this.showLocationPopup = true;
+            }
+          });
+        } else {
+          // If permissions API is not supported, show custom prompt
+          this.showLocationPopup = true;
+        }
+      },
+    },
+  };
+  </script>
   
