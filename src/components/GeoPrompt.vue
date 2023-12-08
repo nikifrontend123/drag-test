@@ -1,7 +1,7 @@
 <template>
     <div>
       <!-- Custom Location Permission Popup -->
-      <div v-if="showLocationPopup" class="location-popup">
+      <div v-if="showLocationPopup && !isLocationPermissionGranted" class="location-popup">
         <p>Would you like to share your location?</p>
         <button @click="allowLocation">Allow</button>
         <button @click="denyLocation">Deny</button>
@@ -16,6 +16,7 @@
         showLocationPopup: false,
         location: null,
         customPermissionAllowed: false,
+        isLocationPermissionGranted: false,
       };
     },
     mounted() {
@@ -23,7 +24,9 @@
     },
     methods: {
       openLocationPopup() {
-        this.showLocationPopup = true;
+        if (!this.isLocationPermissionGranted) {
+          this.showLocationPopup = true;
+        }
       },
       allowLocation() {
         this.customPermissionAllowed = true;
@@ -43,6 +46,7 @@
                 longitude: position.coords.longitude,
               };
               this.showLocationPopup = false;
+              this.isLocationPermissionGranted = true; // Set the flag to true
               this.$emit('geolocationAllowed', this.location);
             },
             (error) => {
@@ -81,18 +85,18 @@
   };
   </script>
   
+  <style>
+  .location-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 20px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+      text-align: center;
+  }
+  </style>
   
-<style>
-.location-popup {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    padding: 20px;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
-    text-align: center;
-}
-</style>
