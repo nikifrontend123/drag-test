@@ -1,7 +1,9 @@
 <template>
   <CatelogFilter>Markets</CatelogFilter>
   <div class="container my-5 py-3">
-    <GeoPrompt ref="geoPrompt" @geolocationAllowed="getUserLocation" @closeGeoPrompt="closeCustomGeoPrompt" />
+    <GeoPrompt ref="geoPrompt" @geolocationAllowed="handleGeolocationAllowed" @closeGeoPrompt="closeCustomGeoPrompt"
+      v-if="!customPromptClosed" />
+    <!-- <GeoPrompt ref="geoPrompt" @geolocationAllowed="getUserLocation" @closeGeoPrompt="closeCustomGeoPrompt" /> -->
     <div class="row g-1">
       <div class="col-4" v-for="item in firstList" :key="item.sid">
         <div class="card mb-3" @click="toggleSelection(item)"
@@ -115,9 +117,21 @@ export default {
       selectedItems: [],
       userLocation: null,
       showGeolocationPrompt: true,
+      customPromptClosed: false,
+      
     };
   },
   methods: {
+    triggerDefaultGeoPrompt() {
+      if (navigator.permissions) {
+        navigator.permissions.query({ name: 'geolocation' }).then((result) => {
+          if (result.state === 'prompt') {
+            // Geolocation permission is in prompt state, trigger the default prompt
+            this.$refs.geoPrompt.openGeoPrompt(); // assuming you have a method in GeoPrompt to open the prompt
+          }
+        });
+      }
+    },
     toggleSelection(item) {
       // Toggle the selection of an item
       const index = this.selectedItems.findIndex((selectedItem) => selectedItem.sid === item.sid);
@@ -163,7 +177,6 @@ export default {
     isItemInBox(item) {
       return this.droppedItems.some((droppedItem) => droppedItem.sid === item.sid);
     },
-
     onCloseGeoPrompt() {
       // Perform actions when the geolocation prompt is closed
       console.log('Geolocation prompt closed.');
@@ -171,41 +184,59 @@ export default {
       this.showGeolocationPrompt = false;
     },
     getUserLocation() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const { latitude, longitude } = position.coords;
-            this.location = { latitude, longitude };
+      if (navigator.permissions) {
+        navigator.permissions.query({ name: 'geolocation' }).then((result) => {
+          if (result.state === 'granted') {
+            // Geolocation permission granted, proceed to get location
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                const { latitude, longitude } = position.coords;
+                this.location = { latitude, longitude };
+                this.showLocationPopup = false;
+                this.$emit('geolocationAllowed', this.location);
+              },
+              (error) => {
+                // Handle location retrieval error
+                console.error(`Error getting location: ${error.message}`);
+                this.showLocationPopup = false;
+              },
+              {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 0,
+              }
+            );
+          } else {
+            // Geolocation permission not granted
+            console.error('Geolocation permission not granted.');
             this.showLocationPopup = false;
-            this.$emit('geolocationAllowed', this.location);
-          },
-          (error) => {
-            // Handle location retrieval error
-            console.error(`Error getting location: ${error.message}`);
-            
-            // Check if the error is due to user denying geolocation
-            if (error.code === error.PERMISSION_DENIED) {
-              this.showLocationPopup = false;
-              this.$emit('geolocationDenied');
-            } else {
-              // Handle other location retrieval errors
-              this.showLocationPopup = false;
-            }
-          },
-          {
-            enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 0,
+            this.$emit('geolocationDenied');
           }
-        );
+        });
       } else {
+        // Browser does not support navigator.permissions
         console.error('Geolocation is not supported by your browser');
         this.showLocationPopup = false;
       }
     },
+    handleGeolocationAllowed(location) {
+      console.log('User allowed geolocation:', location);
+      // Handle the allowed geolocation scenario in your parent component
+      // For example, update state or perform other actions.
+    },
+    handleGeolocationDenied() {
+      console.log('User denied geolocation.');
+      // Handle the denied geolocation scenario in your parent component
+      // For example, show a message to the user or trigger another prompt.
+    },
+    closeCustomGeoPrompt() {
+      this.customPromptClosed = true;
+    },
   },
 
   mounted() {
+     // Trigger the default geolocation prompt when the page is opened
+     this.triggerDefaultGeoPrompt();
     this.getUserLocation();
     // Listen for the "mounted" event of GeoPrompt
     // this.$refs.geoPrompt.$once('hook:mounted', this.onGeoPromptMounted);

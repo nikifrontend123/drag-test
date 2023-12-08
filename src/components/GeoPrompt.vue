@@ -6,25 +6,8 @@
         <button @click="allowLocation">Allow</button>
         <button @click="denyLocation">Deny</button>
       </div>
-  
-      <p v-if="location">Latitude: {{ location.latitude }}, Longitude: {{ location.longitude }}</p>
     </div>
   </template>
-  
-  <style>
-  .location-popup {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    padding: 20px;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
-    text-align: center;
-  }
-  </style>
   
   <script>
   export default {
@@ -39,6 +22,9 @@
       this.checkLocationPermission();
     },
     methods: {
+      openLocationPopup() {
+        this.showLocationPopup = true;
+      },
       allowLocation() {
         this.customPermissionAllowed = true;
         this.getLocation();
@@ -76,7 +62,7 @@
         }
       },
       checkLocationPermission() {
-        if ('permissions' in navigator) {
+        if (this.customPermissionAllowed) {
           navigator.permissions.query({ name: 'geolocation' }).then((permissionStatus) => {
             if (permissionStatus.state === 'granted') {
               // Location permission is already granted
@@ -95,3 +81,18 @@
   };
   </script>
   
+  
+<style>
+.location-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    text-align: center;
+}
+</style>
