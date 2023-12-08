@@ -2,12 +2,11 @@
   <CatelogFilter>Markets</CatelogFilter>
   <div class="container my-5 py-3">
     <h5 v-if="userLocation">
-      User Coordinates: {{ userLocation.latitude }}, {{ userLocation.longitude }}
-    </h5>
+        User Coordinates: {{ userLocation.latitude }}, {{ userLocation.longitude }}
+      </h5>
   </div>
   <div class="container my-5 py-3">
-    <GeoPrompt ref="geoPrompt" @geolocationAllowed="handleGeolocationAllowed" @closeGeoPrompt="closeCustomGeoPrompt"
-      v-if="!customPromptClosed" />
+    <GeoPrompt v-if="!locationPermissionGranted" @geolocationAllowed="handleGeolocationAllowed" @closeGeoPrompt="closeCustomGeoPrompt" />
     <div class="row g-1">
       <div class="col-4" v-for="item in firstList" :key="item.sid">
         <div class="card mb-3" @click="toggleSelection(item)"
@@ -149,7 +148,10 @@ export default {
   },
 
   mounted() {
-
+    const geoPrompt = this.$refs.geoPrompt;
+    if (geoPrompt && !geoPrompt.isLocationPermissionGranted) {
+      geoPrompt.openLocationPopup();
+    }
     this.getUserLocation();
 
   },

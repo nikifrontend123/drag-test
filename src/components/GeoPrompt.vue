@@ -15,7 +15,6 @@
       return {
         showLocationPopup: false,
         location: null,
-        customPermissionAllowed: false,
         isLocationPermissionGranted: false,
       };
     },
@@ -29,7 +28,6 @@
         }
       },
       allowLocation() {
-        this.customPermissionAllowed = true;
         this.getLocation();
       },
       denyLocation() {
@@ -37,7 +35,7 @@
         this.$emit('closeGeoPrompt');
       },
       getLocation() {
-        if (this.customPermissionAllowed && 'geolocation' in navigator) {
+        if ('geolocation' in navigator) {
           navigator.geolocation.getCurrentPosition(
             (position) => {
               // Handle successful location retrieval
@@ -66,19 +64,12 @@
         }
       },
       checkLocationPermission() {
-        if (this.customPermissionAllowed) {
-          navigator.permissions.query({ name: 'geolocation' }).then((permissionStatus) => {
-            if (permissionStatus.state === 'granted') {
-              // Location permission is already granted
-              this.getLocation();
-            } else {
-              // Location permission is not granted, show custom prompt
-              this.showLocationPopup = true;
-            }
-          });
-        } else {
-          // If permissions API is not supported, show custom prompt
+        if ('geolocation' in navigator) {
+          // Geolocation is supported, ask for permission
           this.showLocationPopup = true;
+        } else {
+          console.error('Geolocation is not supported by your browser');
+          this.showLocationPopup = false;
         }
       },
     },
@@ -87,16 +78,16 @@
   
   <style>
   .location-popup {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      padding: 20px;
-      background-color: #fff;
-      border: 1px solid #ccc;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-      z-index: 1000;
-      text-align: center;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    text-align: center;
   }
   </style>
   
