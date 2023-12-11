@@ -2,7 +2,7 @@
   <CatelogFilter>Markets</CatelogFilter>
   <div class="container my-5 py-3">
     <h5 v-if="userLocation">
-        User Coordinates: {{ userLocation.latitude }}, {{ userLocation.longitude }}
+        User Coordinate: {{ userLocation.latitude }}, {{ userLocation.longitude }}
       </h5>
   </div>
   <div class="container my-5 py-3">
@@ -144,7 +144,6 @@ export default {
         this.showLocationPopup = false;
       }
     },
-
   },
 
   mounted() {
